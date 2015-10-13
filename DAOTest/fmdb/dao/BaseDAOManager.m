@@ -17,6 +17,12 @@
 #endif
 
 
+static NSString* const DBSQL_Attribute_NotNull     =   @"NOT NULL";
+static NSString* const DBSQL_Attribute_PrimaryKey  =   @"PRIMARY KEY";
+static NSString* const DBSQL_Attribute_Default     =   @"DEFAULT";
+static NSString* const DBSQL_Attribute_Unique      =   @"UNIQUE";
+static NSString* const DBSQL_Attribute_Check       =   @"CHECK";
+
 
 static NSString *_DatabaseDirectory;
 
@@ -56,6 +62,7 @@ static BaseDAOManager * manager = nil;
     if (self = [super init]) {
         
         self.sqlitePath = [DatabaseDirectory() stringByAppendingPathComponent:@"BestKeep.sqlite"];
+        D_Log(@"SQLITE PATH\n\n\n\n\n\n\n%@",self.sqlitePath);
         [self openDataBase];
     }
     return self;
@@ -89,7 +96,7 @@ static BaseDAOManager * manager = nil;
 }
 
 -(BOOL)insertModelWithDao:(BaseDAO *)dao{
-    NSMutableArray * propertyList = [dao getPropertyArray];
+    NSMutableArray * propertyList = [[dao class] getPropertyArray];
     NSMutableArray * values = [[NSMutableArray alloc] init];
     NSMutableArray * arguments = [[NSMutableArray alloc] init];
     NSMutableArray * column = [[NSMutableArray alloc] init];
@@ -101,10 +108,20 @@ static BaseDAOManager * manager = nil;
             [values addObject:@"?"];
             [arguments addObject:value];
         }
-        
     }
 
-    return NO;
+    NSString * columnStr = [column componentsJoinedByString:@","];
+    NSString * valueStr  =[values componentsJoinedByString:@","];
+    
+    NSString * insertSq = [NSString stringWithFormat:@"replace into %@(%@) values(%@)",[[dao class] tableName],columnStr,valueStr];
+    __block BOOL success = NO;
+    __block sqlite_int64 lastInsertRowId = 0;
+    [self execueSqlite:insertSq block:^(FMDatabase *db) {
+        success = [db executeUpdate:insertSq withArgumentsInArray:arguments];
+        lastInsertRowId = [db lastInsertRowId];
+    }];
+    dao.rowID = (NSInteger)lastInsertRowId;
+    return success;
 }
 
 
@@ -148,36 +165,86 @@ static BaseDAOManager * manager = nil;
     
 }
 
--(BOOL)createTableWithDao:(BaseDAO *)dao{
+-(BOOL)createTableWithDao:(Class)dao{
     
     NSMutableArray * propertyList = [dao getPropertyArray];
-    NSMutableArray* columns = [[NSMutableArray alloc] init];
-    
+    NSMutableArray * columns = [[NSMutableArray alloc] init];
+    NSMutableArray * alertColumns = [[NSMutableArray alloc] init];
+    NSMutableArray * primaryKeys = [[NSMutableArray alloc] init];
 
     for(BaseDaoProperty* property in propertyList)
     {
         NSMutableString* tmpColumns = [[NSMutableString alloc] init];
         [tmpColumns appendFormat:@"%@ %@",property.columnName, property.columnType];
-        [columns addObject:tmpColumns];
-
-    }
-    
-    NSMutableString* columnStr = [[NSMutableString alloc] initWithString:[columns componentsJoinedByString:@", "]];
-    
-    NSString * createSq = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@(%@)",[dao tableName],columnStr];
-    __block BOOL execue = NO;
-    
-    [self execueSqlite:createSq block:^(FMDatabase *db) {
-        execue = [db executeUpdate:createSq];
-        if (execue) {
+        
+        
+//        NSMutableString * tempAlertColumns = [[NSMutableString alloc] init];
+        NSString * sqToAlertTable;
+//        [tempAlertColumns appendFormat:@"%@ %@",property.columnName,property.columnType];
+        
+        if (property.isIgnore) {
             
         }
-    }];
+        if (property.isUnique){
+            [tmpColumns appendFormat:@" %@",DBSQL_Attribute_Unique];
+        }
+        if (property.isNotNull){
+            [tmpColumns appendFormat:@" %@",DBSQL_Attribute_NotNull];
+        }
+        if (property.isPrimary){
+            [primaryKeys addObject:property.columnName];
+        }
+        if (property.columnStatus == DBColumaStatuRemove) {
+            sqToAlertTable = [NSString stringWithFormat:@"ALTER TABLE %@ DROP COLUMN %@",[[dao class] tableName],property.columnName];
+            [alertColumns addObject:sqToAlertTable];
+            continue;
+        }
+        if (property.columnStatus == DBColumaStatuAddition){
+            sqToAlertTable = [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@",[[dao class] tableName],tmpColumns];
+            [alertColumns addObject:sqToAlertTable];
+            continue;
+            
+        }else{
+            
+        }
+        [columns addObject:tmpColumns];
+
+        
+    }
+    
+    NSMutableString * columnStr = [[NSMutableString alloc] initWithString:[columns componentsJoinedByString:@", "]];
+    NSMutableString * primaryKeyStr = [[NSMutableString alloc] initWithString:[primaryKeys componentsJoinedByString:@", "]];
+    NSString * createSq;
+    if([primaryKeyStr length])
+    {
+        [primaryKeyStr insertString:@", primary key(" atIndex:0];
+        [primaryKeyStr appendString:@")"];
+        createSq = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@(%@%@)",[[dao class] tableName],columnStr,primaryKeys];
+    }else{
+        createSq = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@(%@)",[[dao class] tableName],columnStr];
+    }
+    
+  
+    
+    BOOL execue = [self executeSQL:createSq withArgumentsInArray:nil];
+    
+
     if (!execue) {
         
         D_Log(@"create table fail \n%@",createSq);
         return NO;
     }
+    
+    for (NSString * tempAlterSq in alertColumns) {
+        BOOL sucess = [self executeSQL:tempAlterSq withArgumentsInArray:nil];
+        if (sucess) {
+            
+        }else{
+            D_Log(@"alter table fail \n\n\n%@",tempAlterSq);
+        }
+    }
+    
+    
     
     return YES;
 }

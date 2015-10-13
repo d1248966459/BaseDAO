@@ -26,13 +26,11 @@ NSString* const DB_Type_Blob = @"blob";
         NSString* propertyAttributes = @(attrs);
         NSString* propertyType = nil;
         
+        self.columnStatus = DBColumaStatuNormal;
+        
         NSScanner* scanner = [NSScanner scannerWithString:propertyAttributes];
         [scanner scanUpToString:@"T" intoString: nil];
         [scanner scanString:@"T" intoString:nil];
-        
-        //check if the property is an instance of a class
-        
-        
         
         if([scanner scanString:@"@\"" intoString: &propertyType])
         {
@@ -45,7 +43,7 @@ NSString* const DB_Type_Blob = @"blob";
             while ([scanner scanString:@"<" intoString:NULL])
             {
                 NSString* protocolName = nil;
-                
+
                 [scanner scanUpToString:@">" intoString: &protocolName];
                 if ([protocolName isEqualToString:@"DataBaseIsNotNull"]) {
                     _isNotNull = YES;
@@ -60,7 +58,6 @@ NSString* const DB_Type_Blob = @"blob";
                 }else if ([protocolName isEqualToString:@"DataBaseIsRemove"]){
                     _columnStatus = DBColumaStatuRemove;
                 }
-                
                 
                 [scanner scanString:@">" intoString:NULL];
             }

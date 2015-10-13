@@ -48,8 +48,11 @@ typedef void(^CompeletionId)(id result, NSError * error);
 
 @interface BaseDAO : NSObject
 
+@property (nonatomic,assign) NSInteger rowID;
 
--(BOOL)createTable;
+
+
++(BOOL)createTable;
 
 -(BOOL)deleteTable;
 
@@ -65,9 +68,9 @@ typedef void(^CompeletionId)(id result, NSError * error);
  *
  *  @return 表名
  */
--(NSString *)tableName;
++(NSString *)tableName;
 
--(NSMutableArray *)getPropertyArray;
++(NSMutableArray *)getPropertyArray;
 -(id)valueForProperty:(BaseDaoProperty *)property;
 
 @end

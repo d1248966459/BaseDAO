@@ -7,7 +7,6 @@
 //
 
 #import "GoodsInfoDAO.h"
-#import "GoodsInfoDAO_Add.h"
 
 
 @implementation GoodsInfoDAO
@@ -16,10 +15,8 @@
     if (self = [super init]) {
     }
     return self;
-    
-
 }
--(NSString *)tableName{
++(NSString *)tableName{
     return @"goodsInfo";
 }
 

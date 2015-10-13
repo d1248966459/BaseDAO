@@ -21,7 +21,7 @@
 
 -(void)releaseManager;
 
--(BOOL)createTableWithDao:(BaseDAO *)dao;
+-(BOOL)createTableWithDao:(Class)dao;
 
 -(BOOL)insertModelWithDao:(BaseDAO *)dao;
 

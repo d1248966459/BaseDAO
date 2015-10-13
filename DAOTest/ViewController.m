@@ -13,6 +13,10 @@
 
 
 @interface ViewController ()
+- (IBAction)insertModel:(id)sender;
+- (IBAction)delteModel:(id)sender;
+- (IBAction)updateModel:(id)sender;
+- (IBAction)searchModel:(id)sender;
 
 @end
 
@@ -21,10 +25,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    GoodsInfoDAO * userDao = [[GoodsInfoDAO alloc] init];
-    userDao.goodsID = @"123456";
-    userDao.userInfo = [[UserInfoModel alloc] init];
-    [userDao createTable];
     
     // Do any additional setup after loading the view, typically from a nib.
 }
@@ -34,4 +34,25 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (IBAction)insertModel:(id)sender {
+    GoodsInfoDAO * userDao = [[GoodsInfoDAO alloc] init];
+    userDao.goodsID = (id)@"123456";
+    userDao.userInfo = [[UserInfoModel alloc] init];
+    userDao.testFrame = self.view.bounds;
+    userDao.testSize = self.view.bounds.size;
+    userDao.testPoint = self.view.center;
+    [userDao insertModelWithCompeletion:^(BOOL result) {
+        
+    }];
+
+}
+
+- (IBAction)delteModel:(id)sender {
+}
+
+- (IBAction)updateModel:(id)sender {
+}
+
+- (IBAction)searchModel:(id)sender {
+}
 @end
