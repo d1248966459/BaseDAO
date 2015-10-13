@@ -97,7 +97,9 @@ static BaseDAOManager * manager = nil;
     for (BaseDaoProperty * tempProperty in propertyList) {
         id value = [dao valueForProperty:tempProperty];
         if (value) {
-            
+            [column addObject:tempProperty.columnName];
+            [values addObject:@"?"];
+            [arguments addObject:value];
         }
         
     }
@@ -151,10 +153,6 @@ static BaseDAOManager * manager = nil;
     NSMutableArray * propertyList = [dao getPropertyArray];
     NSMutableArray* columns = [[NSMutableArray alloc] init];
     
-    
-//    NSMutableArray* primaryKeys = [[NSMutableArray alloc] init];
-//    NSMutableArray* alertColumns = [[NSMutableArray alloc] init];
-//    NSString* sqlToAlertTable;
 
     for(BaseDaoProperty* property in propertyList)
     {
@@ -162,15 +160,9 @@ static BaseDAOManager * manager = nil;
         [tmpColumns appendFormat:@"%@ %@",property.columnName, property.columnType];
         [columns addObject:tmpColumns];
 
-//        sqlToAlertTable = [NSString stringWithFormat:@"ALTER TABLE %@ ADD %@",[dao tableName], tmpColumns];
-//        [alertColumns addObject:sqlToAlertTable];
-       
-        
-//        [primaryKeys addObject:property.columnName];
     }
     
     NSMutableString* columnStr = [[NSMutableString alloc] initWithString:[columns componentsJoinedByString:@", "]];
-//    NSMutableString* primaryKeyStr = [[NSMutableString alloc] initWithString:[primaryKeys componentsJoinedByString:@", "]];
     
     NSString * createSq = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@(%@)",[dao tableName],columnStr];
     __block BOOL execue = NO;
@@ -187,12 +179,6 @@ static BaseDAOManager * manager = nil;
         return NO;
     }
     
-//    for (NSMutableString *tempSqlToAlertTable in alertColumns) {
-//        BOOL sucess = [self executeSQL:tempSqlToAlertTable withArgumentsInArray:nil];
-//        if (!sucess) {
-//            D_Log(@"alter table fail \n%@",tempSqlToAlertTable);
-//        }
-//    }
     return YES;
 }
 #pragma mark -- 数据库操作

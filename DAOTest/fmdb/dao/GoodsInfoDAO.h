@@ -11,7 +11,7 @@
 
 @interface GoodsInfoDAO : BaseDAO
 
-@property (nonatomic,copy) NSString * goodsID;
+@property (nonatomic,copy) NSString <DataBaseNotNull>* goodsID;
 @property (nonatomic,strong) UserInfoModel * userInfo;
 
 

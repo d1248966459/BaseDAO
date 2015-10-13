@@ -10,8 +10,41 @@
 
 @class BaseDaoProperty;
 
+
 typedef void(^CompeletionBool)(BOOL result);
 typedef void(^CompeletionId)(id result, NSError * error);
+
+/**
+ *  非空
+ */
+@protocol DataBaseIsNotNull <NSObject>
+@end
+/**
+ *  主键
+ */
+@protocol DatabaseIsPrimary <NSObject>
+@end
+/**
+ *  无效
+ */
+@protocol DataBaseIsIgnore <NSObject>
+@end
+/**
+ *  唯一
+ */
+@protocol DataBaseIsUnique <NSObject>
+@end
+/**
+ *  添加
+ */
+@protocol DataBaseIsAddition <NSObject>
+@end
+/**
+ *  移除
+ */
+@protocol DataBaseIsRemove <NSObject>
+@end
+
 
 @interface BaseDAO : NSObject
 

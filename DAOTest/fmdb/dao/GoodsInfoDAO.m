@@ -7,7 +7,7 @@
 //
 
 #import "GoodsInfoDAO.h"
-
+#import "GoodsInfoDAO_Add.h"
 
 
 @implementation GoodsInfoDAO
@@ -21,6 +21,10 @@
 }
 -(NSString *)tableName{
     return @"goodsInfo";
+}
+
+-(void)save{
+
 }
 
 

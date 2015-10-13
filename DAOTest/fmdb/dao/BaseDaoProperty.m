@@ -31,6 +31,9 @@ NSString* const DB_Type_Blob = @"blob";
         [scanner scanString:@"T" intoString:nil];
         
         //check if the property is an instance of a class
+        
+        
+        
         if([scanner scanString:@"@\"" intoString: &propertyType])
         {
             [scanner scanUpToCharactersFromSet:[NSCharacterSet characterSetWithCharactersInString:@"\"<"]
@@ -44,6 +47,19 @@ NSString* const DB_Type_Blob = @"blob";
                 NSString* protocolName = nil;
                 
                 [scanner scanUpToString:@">" intoString: &protocolName];
+                if ([protocolName isEqualToString:@"DataBaseIsNotNull"]) {
+                    _isNotNull = YES;
+                }else if ([protocolName isEqualToString:@"DatabaseIsPrimary"]){
+                    _isPrimary  = YES;
+                }else if ([protocolName isEqualToString:@"DataBaseIsIgnore"]){
+                    _isIgnore = YES;
+                }else if ([protocolName isEqualToString:@"DataBaseIsUnique"]){
+                    _isUnique = YES;
+                }else if ([protocolName isEqualToString:@"DataBaseIsAddition"]){
+                    _columnStatus = DBColumaStatuAddition;
+                }else if ([protocolName isEqualToString:@"DataBaseIsRemove"]){
+                    _columnStatus = DBColumaStatuRemove;
+                }
                 
                 
                 [scanner scanString:@">" intoString:NULL];
@@ -86,7 +102,8 @@ NSString* const DB_Type_Blob = @"blob";
                                     intoString:&propertyType];
             
             _propertyType = primitivesNames[propertyType];
-            _columnType = mapTypes[_propertyType];
+            propertyType = mapTypes[_propertyType];
+            _columnType = [propertyType length]>0?propertyType:DB_Type_Blob;
             if([_propertyType isEqualToString:@"Block"])
             {
                 return nil;
