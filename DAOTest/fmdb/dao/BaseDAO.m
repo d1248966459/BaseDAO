@@ -11,6 +11,7 @@
 #import "BaseDAOManager.h"
 #import "BaseDaoProperty.h"
 #import <objc/runtime.h>
+#import <UIKit/UIKit.h>
 #import <CoreData/CoreData.h>
 #import "UserInfoModel.h"
 
@@ -31,14 +32,17 @@ typedef BOOL (^DJClassesEnumeration)(Class c, BOOL *stop);
     return NO;
 }
 
+-(void)searchModelWithCompeletion:(CompeletionId)commpeletion andCondition:(BaseDAOSerchCondition *)condition{
+    [[BaseDAOManager cruuentManager] searchModelWihtDao:self condition:condition];
 
--(void)searchModelWithCompeletion:(CompeletionId)commpeletion{
-    [[BaseDAOManager cruuentManager] searchModelWithDao:self andCompeletion:commpeletion];
 }
+
 -(void)insertModelWithCompeletion:(CompeletionBool)compeletion{
     [[BaseDAOManager cruuentManager] insertModelWithDao:self andCompeletion:compeletion];
 }
-
+-(void)deleteModelWithCompeletion:(CompeletionBool)compeletion{
+    [[BaseDAOManager cruuentManager] deleteModelWithDao:self andCompeletion:compeletion];
+}
 
 
 
@@ -62,6 +66,28 @@ typedef BOOL (^DJClassesEnumeration)(Class c, BOOL *stop);
     }
     
     return value;
+}
+
+
++(NSMutableDictionary *)getPropertyDict{
+    NSMutableDictionary * resultDict = [[NSMutableDictionary alloc] init];
+    [self enumerateClasses:^BOOL(__unsafe_unretained Class c, BOOL *stop) {
+        unsigned int outCount, i;
+        
+        objc_property_t * properties = class_copyPropertyList([c class], &outCount);
+        for (i = 0; i < outCount; i++) {
+            objc_property_t property =properties[i];
+            BaseDaoProperty * daoProperty = [[BaseDaoProperty alloc] initWithPorety:&property];
+            if (daoProperty) {
+                [resultDict setObject:daoProperty forKey:daoProperty.columnName];
+            }
+        }
+        free(properties);
+        return NO;
+
+    }];
+
+    return resultDict;
 }
 
 +(NSMutableArray *)getPropertyArray{
@@ -141,5 +167,101 @@ typedef BOOL (^DJClassesEnumeration)(Class c, BOOL *stop);
 +(NSString *)tableName{
 return @"BaseDao";
 }
+
+- (void)modelWithProperty:(BaseDaoProperty*)property value:(id)value
+{
+    ///参试获取属性的Class
+    Class columnClass = NSClassFromString(property.propertyType);
+    
+    id modelValue = nil;
+    NSString* columnType = property.columnType;
+    if(columnClass == nil)
+    {
+        ///当找不到 class 时，就是 基础类型 int,float CGRect 之类的
+        if([columnType isEqualToString:DB_Type_Double])
+        {
+            double number = [value doubleValue];
+            modelValue = [NSNumber numberWithDouble:number];
+        }
+        else if([columnType isEqualToString:DB_Type_Int])
+        {
+            if([property.propertyType isEqualToString:@"long"])
+            {
+                long long number = [value longLongValue];
+                modelValue = [NSNumber numberWithLongLong:number];
+            }
+            else
+            {
+                NSInteger number = [value integerValue];
+                modelValue = [NSNumber numberWithInteger:number];
+            }
+        }
+        else if([columnType isEqualToString:@"CGRect"])
+        {
+            CGRect rect = CGRectFromString(value);
+            modelValue = [NSValue valueWithCGRect:rect];
+        }
+        else if([columnType isEqualToString:@"CGPoint"])
+        {
+            CGPoint point = CGPointFromString(value);
+            modelValue = [NSValue valueWithCGPoint:point];
+        }
+        else if([columnType isEqualToString:@"CGSize"])
+        {
+            CGSize size = CGSizeFromString(value);
+            modelValue = [NSValue valueWithCGSize:size];
+        }
+        else if([columnType isEqualToString:@"_NSRange"])
+        {
+            NSRange range = NSRangeFromString(value);
+            modelValue = [NSValue valueWithRange:range];
+        }
+        
+        ///如果都没有值 默认给个0
+        if(modelValue == nil)
+        {
+            modelValue = [NSNumber numberWithInt:0];
+        }
+    }
+    else if([columnType isEqualToString:DB_Type_Blob])
+    {
+        if([columnClass isSubclassOfClass:[NSObject class]])
+        {
+            modelValue = [NSKeyedUnarchiver unarchiveObjectWithData:value];
+        }
+    }
+    else if([value length] == 0)
+    {
+        //为了不继续遍历
+    }
+    else if([columnClass isSubclassOfClass:[NSString class]])
+    {
+        modelValue = value;
+    }
+    else if([columnClass isSubclassOfClass:[NSNumber class]])
+    {
+        modelValue = [NSNumber numberWithDouble:[value doubleValue]];
+    }
+    else if([columnClass isSubclassOfClass:[UIImage class]])
+    {
+        //TODO 存在本地，存本地文件url，防止数据库过大
+        modelValue = [UIImage imageWithContentsOfFile:value];
+    }
+    else
+    {
+        if([columnClass isKindOfClass:[NSArray class]])
+        {
+            //            modelValue = [value objectFromJSONString];
+        }
+        else if([columnClass isKindOfClass:[NSDictionary class]])
+        {
+            //            modelValue = [value objectFromJSONString];
+        }
+    }
+    
+    [self setValue:modelValue forKey:property.columnName];
+}
+
+
 
 @end

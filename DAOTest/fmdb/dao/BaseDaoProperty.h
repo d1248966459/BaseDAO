@@ -8,6 +8,12 @@
 #import <Foundation/Foundation.h>
 #import <objc/runtime.h>
 
+extern NSString* const DB_Type_Text;
+extern NSString* const DB_Type_Int;
+extern NSString* const DB_Type_Double;
+extern NSString* const DB_Type_Blob;
+
+
 typedef NS_ENUM(NSUInteger, DBColumaStatu) {
     DBColumaStatuAddition,
     DBColumaStatuRemove,
@@ -40,6 +46,7 @@ typedef NS_ENUM(NSUInteger, DBColumaStatu) {
  */
 @property (nonatomic,assign) DBColumaStatu columnStatus;
 
+//@property (nonatomic,strong) <#ClassName#> * <#class#>;
 
 
 

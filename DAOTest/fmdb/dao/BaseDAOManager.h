@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "FMDB.h"
 #import "BaseDAO.h"
+#import "BaseDAOCondition.h"
+
 
 @interface BaseDAOManager : NSObject
 
@@ -27,8 +29,16 @@
 
 -(void)insertModelWithDao:(BaseDAO *)dao andCompeletion:(CompeletionBool) compeletion;
 
--(id)searchModelWihtDao:(BaseDAO *)dao;
+-(id)searchModelWihtDao:(BaseDAO *)dao condition:(BaseDAOSerchCondition *)condition;
 
--(void)searchModelWithDao:(BaseDAO *)dao andCompeletion:(CompeletionId) compeletion;
+-(void)searchModelWithDao:(BaseDAO *)dao condition:(BaseDAOSerchCondition *)condition andCompeletion:(CompeletionId)compeletion;
+
+-(BOOL)deleteModelWithDao:(BaseDAO *)dao;
+
+-(void)deleteModelWithDao:(BaseDAO *)dao andCompeletion:(CompeletionBool)compeletion;
+
+-(BOOL)updateModelWithDao:(BaseDAO *)dao;
+
+-(void)updateModelWithDao:(BaseDAO *)dao andCompeletion:(CompeletionBool)compeletion;
 
 @end

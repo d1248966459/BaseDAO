@@ -9,10 +9,22 @@
 #import <Foundation/Foundation.h>
 
 @class BaseDaoProperty;
+@class BaseDAOSerchCondition;
+@class BaseDAOCondition;
 
-
+/**
+ *  返回成功与否的block
+ *
+ *  @param result 成功与否的结果
+ */
 typedef void(^CompeletionBool)(BOOL result);
-typedef void(^CompeletionId)(id result, NSError * error);
+/**
+ *  返回一个id类型的result
+ *
+ *  @param result 查询结果 等
+ *  @param error  是否错误
+ */
+typedef void(^CompeletionId)(id result);
 
 /**
  *  非空
@@ -58,9 +70,9 @@ typedef void(^CompeletionId)(id result, NSError * error);
 
 -(void)insertModelWithCompeletion:(CompeletionBool)compeletion;
 
--(void)searchModelWithCompeletion:(CompeletionId)commpeletion;
+-(void)searchModelWithCompeletion:(CompeletionId)commpeletion andCondition:(BaseDAOSerchCondition *)condition;
 
-
+-(void)deleteModelWithCompeletion:(CompeletionBool)compeletion;
 
 
 /**
@@ -71,6 +83,14 @@ typedef void(^CompeletionId)(id result, NSError * error);
 +(NSString *)tableName;
 
 +(NSMutableArray *)getPropertyArray;
++(NSMutableDictionary *)getPropertyDict;
+
+
+
 -(id)valueForProperty:(BaseDaoProperty *)property;
+- (void)modelWithProperty:(BaseDaoProperty*)property value:(id)value;
+
+
+
 
 @end

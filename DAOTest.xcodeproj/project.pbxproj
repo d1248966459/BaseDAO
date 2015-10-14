@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6723F97B1BCE3B5300C0CB32 /* BaseDAOCondition.m in Sources */ = {isa = PBXBuildFile; fileRef = 6723F97A1BCE3B5300C0CB32 /* BaseDAOCondition.m */; settings = {ASSET_TAGS = (); }; };
+		6779F25B1BCD0C3B004252FD /* GWBaseDAO.m in Sources */ = {isa = PBXBuildFile; fileRef = 6779F2541BCD0C3B004252FD /* GWBaseDAO.m */; settings = {ASSET_TAGS = (); }; };
+		6779F25C1BCD0C3B004252FD /* GWDBCondition.m in Sources */ = {isa = PBXBuildFile; fileRef = 6779F2561BCD0C3B004252FD /* GWDBCondition.m */; settings = {ASSET_TAGS = (); }; };
+		6779F25D1BCD0C3B004252FD /* GWDBManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6779F2581BCD0C3B004252FD /* GWDBManager.m */; settings = {ASSET_TAGS = (); }; };
+		6779F25E1BCD0C3B004252FD /* GWDBProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = 6779F25A1BCD0C3B004252FD /* GWDBProperty.m */; settings = {ASSET_TAGS = (); }; };
 		678DCEFD1BC7B8A7009169A6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 678DCEFC1BC7B8A7009169A6 /* main.m */; };
 		678DCF001BC7B8A7009169A6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 678DCEFF1BC7B8A7009169A6 /* AppDelegate.m */; };
 		678DCF031BC7B8A7009169A6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 678DCF021BC7B8A7009169A6 /* ViewController.m */; };
@@ -46,6 +51,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6723F9791BCE3B5300C0CB32 /* BaseDAOCondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BaseDAOCondition.h; sourceTree = "<group>"; };
+		6723F97A1BCE3B5300C0CB32 /* BaseDAOCondition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseDAOCondition.m; sourceTree = "<group>"; };
+		6779F2531BCD0C3B004252FD /* GWBaseDAO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWBaseDAO.h; sourceTree = "<group>"; };
+		6779F2541BCD0C3B004252FD /* GWBaseDAO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWBaseDAO.m; sourceTree = "<group>"; };
+		6779F2551BCD0C3B004252FD /* GWDBCondition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWDBCondition.h; sourceTree = "<group>"; };
+		6779F2561BCD0C3B004252FD /* GWDBCondition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWDBCondition.m; sourceTree = "<group>"; };
+		6779F2571BCD0C3B004252FD /* GWDBManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWDBManager.h; sourceTree = "<group>"; };
+		6779F2581BCD0C3B004252FD /* GWDBManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWDBManager.m; sourceTree = "<group>"; };
+		6779F2591BCD0C3B004252FD /* GWDBProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GWDBProperty.h; sourceTree = "<group>"; };
+		6779F25A1BCD0C3B004252FD /* GWDBProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GWDBProperty.m; sourceTree = "<group>"; };
 		678DCEF81BC7B8A7009169A6 /* DAOTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DAOTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		678DCEFC1BC7B8A7009169A6 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		678DCEFE1BC7B8A7009169A6 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -112,6 +127,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6779F2521BCD0C3B004252FD /* gwdao */ = {
+			isa = PBXGroup;
+			children = (
+				6779F2531BCD0C3B004252FD /* GWBaseDAO.h */,
+				6779F2541BCD0C3B004252FD /* GWBaseDAO.m */,
+				6779F2551BCD0C3B004252FD /* GWDBCondition.h */,
+				6779F2561BCD0C3B004252FD /* GWDBCondition.m */,
+				6779F2571BCD0C3B004252FD /* GWDBManager.h */,
+				6779F2581BCD0C3B004252FD /* GWDBManager.m */,
+				6779F2591BCD0C3B004252FD /* GWDBProperty.h */,
+				6779F25A1BCD0C3B004252FD /* GWDBProperty.m */,
+			);
+			name = gwdao;
+			path = DAOTest/fmdb/gwdao;
+			sourceTree = SOURCE_ROOT;
+		};
 		678DCEEF1BC7B8A7009169A6 = {
 			isa = PBXGroup;
 			children = (
@@ -200,12 +231,15 @@
 		678DCF2F1BC7B8C3009169A6 /* dao */ = {
 			isa = PBXGroup;
 			children = (
+				6779F2521BCD0C3B004252FD /* gwdao */,
 				678DCF301BC7B8C3009169A6 /* BaseDAO.h */,
 				678DCF311BC7B8C3009169A6 /* BaseDAO.m */,
 				678DCF321BC7B8C3009169A6 /* BaseDAOManager.h */,
 				678DCF331BC7B8C3009169A6 /* BaseDAOManager.m */,
 				678DCF341BC7B8C3009169A6 /* BaseDaoProperty.h */,
 				678DCF351BC7B8C3009169A6 /* BaseDaoProperty.m */,
+				6723F9791BCE3B5300C0CB32 /* BaseDAOCondition.h */,
+				6723F97A1BCE3B5300C0CB32 /* BaseDAOCondition.m */,
 				67C1B63F1BC8B99300A1C007 /* GoodsInfoDAO.h */,
 				67C1B6401BC8B99300A1C007 /* GoodsInfoDAO.m */,
 			);
@@ -347,10 +381,15 @@
 				678DCF4E1BC7B8EA009169A6 /* UserInfoModel.m in Sources */,
 				67C1B6411BC8B99300A1C007 /* GoodsInfoDAO.m in Sources */,
 				678DCF031BC7B8A7009169A6 /* ViewController.m in Sources */,
+				6779F25B1BCD0C3B004252FD /* GWBaseDAO.m in Sources */,
 				678DCF001BC7B8A7009169A6 /* AppDelegate.m in Sources */,
+				6779F25D1BCD0C3B004252FD /* GWDBManager.m in Sources */,
 				678DCEFD1BC7B8A7009169A6 /* main.m in Sources */,
+				6723F97B1BCE3B5300C0CB32 /* BaseDAOCondition.m in Sources */,
 				678DCF481BC7B8C3009169A6 /* FMDatabaseAdditions.m in Sources */,
 				678DCF4B1BC7B8C3009169A6 /* FMResultSet.m in Sources */,
+				6779F25E1BCD0C3B004252FD /* GWDBProperty.m in Sources */,
+				6779F25C1BCD0C3B004252FD /* GWDBCondition.m in Sources */,
 				678DCF491BC7B8C3009169A6 /* FMDatabasePool.m in Sources */,
 				678DCF4A1BC7B8C3009169A6 /* FMDatabaseQueue.m in Sources */,
 				678DCF431BC7B8C3009169A6 /* BaseDAO.m in Sources */,

@@ -62,7 +62,7 @@ static BaseDAOManager * manager = nil;
     if (self = [super init]) {
         
         self.sqlitePath = [DatabaseDirectory() stringByAppendingPathComponent:@"BestKeep.sqlite"];
-        D_Log(@"SQLITE PATH\n\n\n\n\n\n\n%@",self.sqlitePath);
+        D_Log(@"SQLITE PATH\n\n%@",self.sqlitePath);
         [self openDataBase];
     }
     return self;
@@ -124,46 +124,105 @@ static BaseDAOManager * manager = nil;
     return success;
 }
 
-
--(void)searchModelWithDao:(BaseDAO *)dao andCompeletion:(CompeletionId)compeletion{}
-
-
--(id)searchModelWihtDao:(BaseDAO *)dao{
-
-
-    return nil;
+-(BOOL)updateModelWithDao:(BaseDAO *)dao{
+    
+    
+    
+    
+    return NO;
 }
 
--(void)openDataBase{
-    
-    _databaseQueue = [FMDatabaseQueue databaseQueueWithPath:self.sqlitePath];
-    if (!_databaseQueue) {
-        self.isOpen = NO;
-        return;
-    }
-    self.isOpen = YES;
-    [_databaseQueue inDatabase:^(FMDatabase *db) {
-        [db setShouldCacheStatements:YES];
+-(void)updateModelWithDao:(BaseDAO *)dao andCompeletion:(CompeletionBool)compeletion{
+    [self asyncTask:^(BaseDAOManager *manager) {
+        BOOL sucess = [manager updateModelWithDao:dao];
+        compeletion(sucess);
     }];
-}
--(void)closeDataBase{
 
-    if (!self.isOpen) {
-        return;
-    }
-    
-    self.isOpen = NO;
-    [_databaseQueue close];
+}
+
+-(void)searchModelWithDao:(BaseDAO *)dao condition:(BaseDAOSerchCondition *)condition andCompeletion:(CompeletionId)compeletion{
+    [self asyncTask:^(BaseDAOManager *manager) {
+        id result = [manager searchModelWihtDao:dao condition:condition];
+        compeletion(result);
+    }];
     
     
 }
--(void)releaseManager{
+
+-(id)searchModelWihtDao:(BaseDAO *)dao condition:(BaseDAOSerchCondition *)condition{
+    NSMutableArray * argument = [[NSMutableArray alloc] init];
+    NSString * columnStr = [condition cloumString];
+    NSString * conditionStr = [condition conditionStringAddValues:argument];
+    columnStr = [columnStr length]>0 ? columnStr : @"*";
+    conditionStr  = [conditionStr length]>0 ? conditionStr : @"";
+    NSMutableString * searchSq = [[NSMutableString alloc] initWithFormat:@"select %@, rowid from %@ %@",columnStr,[[dao class] tableName],conditionStr];
+    __block NSMutableArray * results = nil;
+    [self execueSqlite:searchSq block:^(FMDatabase *db) {
+        FMResultSet* set = nil;
+        if(![argument count])
+        {
+            set = [db executeQuery:searchSq];
+        }
+        else
+        {
+            set = [db executeQuery:searchSq withArgumentsInArray:argument];
+        }
+        
+        results = [self explainSetWithSet:set baseDao:dao];
+        
+        [set close];
+    }];
     
-    if (manager) {
-        manager = nil;
-    }
-    
+    return results;
 }
+
+-(void)deleteModelWithDao:(BaseDAO *)dao andCompeletion:(CompeletionBool)compeletion{
+    [self asyncTask:^(BaseDAOManager *manager) {
+        BOOL sucess = [manager deleteModelWithDao:dao];
+        compeletion(sucess);
+    }];
+
+}
+
+-(BOOL)deleteModelWithDao:(BaseDAO *)dao{
+    
+    NSMutableString * deleteSq = [NSMutableString stringWithFormat:@"DELETE FROM %@",[[dao class] tableName]];
+    NSMutableArray * arguments = [[NSMutableArray alloc] init];
+    NSMutableString * conditionStr = [[NSMutableString alloc] init];
+    if (dao.rowID >0) {
+        [conditionStr appendFormat:@"rowId=%ld",dao.rowID];
+    }else{
+        NSArray * propertyList = [[dao class] getPropertyArray];
+        NSMutableArray * condtions = [[NSMutableArray alloc] init];
+
+        for (BaseDaoProperty * property in propertyList) {
+            
+            id value = [dao valueForProperty:property];
+            if (value) {
+                NSString * joinStr = property.columnName;
+                if ([joinStr length]) {
+                    [arguments addObject:value];
+                    [condtions addObject:joinStr];
+                }
+            }
+        }
+        
+        [conditionStr appendString:[condtions componentsJoinedByString:@" and "]];
+        
+    }
+    if ([conditionStr length]) {
+        [conditionStr insertString:@" where " atIndex:0];
+    }
+    [deleteSq appendString:conditionStr];
+    BOOL sucess = [self executeSQL:deleteSq withArgumentsInArray:arguments];
+    if (sucess) {
+        dao.rowID = 0;
+    }else{
+        D_Log(@"delete failed deleteSq \n\n\n%@",deleteSq);
+    }
+    return sucess;
+}
+
 
 -(BOOL)createTableWithDao:(Class)dao{
     
@@ -178,9 +237,7 @@ static BaseDAOManager * manager = nil;
         [tmpColumns appendFormat:@"%@ %@",property.columnName, property.columnType];
         
         
-//        NSMutableString * tempAlertColumns = [[NSMutableString alloc] init];
         NSString * sqToAlertTable;
-//        [tempAlertColumns appendFormat:@"%@ %@",property.columnName,property.columnType];
         
         if (property.isIgnore) {
             
@@ -219,12 +276,10 @@ static BaseDAOManager * manager = nil;
     {
         [primaryKeyStr insertString:@", primary key(" atIndex:0];
         [primaryKeyStr appendString:@")"];
-        createSq = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@(%@%@)",[[dao class] tableName],columnStr,primaryKeys];
-    }else{
-        createSq = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@(%@)",[[dao class] tableName],columnStr];
     }
     
-  
+    createSq = [NSString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@(%@%@)",[[dao class] tableName],columnStr,primaryKeyStr];
+
     
     BOOL execue = [self executeSQL:createSq withArgumentsInArray:nil];
     
@@ -274,6 +329,74 @@ static BaseDAOManager * manager = nil;
     }];
 }
 
+
+#pragma 开启关闭release 数据库
+-(void)openDataBase{
+    
+    _databaseQueue = [FMDatabaseQueue databaseQueueWithPath:self.sqlitePath];
+    if (!_databaseQueue) {
+        self.isOpen = NO;
+        return;
+    }
+    self.isOpen = YES;
+    [_databaseQueue inDatabase:^(FMDatabase *db) {
+        [db setShouldCacheStatements:YES];
+    }];
+}
+-(void)closeDataBase{
+    
+    if (!self.isOpen) {
+        return;
+    }
+    
+    self.isOpen = NO;
+    [_databaseQueue close];
+    
+    
+}
+-(void)releaseManager{
+    
+    if (manager) {
+        manager = nil;
+    }
+    
+}
+
+-(NSMutableArray *)explainSetWithSet:(FMResultSet *)set baseDao:(BaseDAO *)dao{
+
+    NSMutableArray * resultArr = [[NSMutableArray alloc] init];
+    NSMutableDictionary * propertyDcit = [[dao class] getPropertyDict];
+    NSInteger columnCount = [set columnCount];
+    while ([set next]) {
+        BaseDAO * tempDao = [[[dao class] alloc] init];
+        for(int i = 0; i < columnCount; i++)
+        {
+            NSString* columnName = [set columnNameForIndex:i];
+            BaseDaoProperty* property = [propertyDcit objectForKey:columnName];
+            if(!property)
+            {
+                if([[columnName lowercaseString] isEqualToString:@"rowid"])
+                {
+                    dao.rowID = [set longForColumnIndex:i];
+                }
+                
+                continue;
+            }
+            
+            if([property.columnType isEqualToString:DB_Type_Blob])
+            {
+                [tempDao modelWithProperty:property value:[set dataForColumnIndex:i]];
+            }
+            else
+            {
+                [tempDao modelWithProperty:property value:[set stringForColumnIndex:i]];
+            }
+        }
+        [resultArr addObject:tempDao];
+    }
+    
+    return resultArr;
+}
 
 
 
